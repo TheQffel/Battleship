@@ -10,6 +10,8 @@ namespace Battleship
             WebApplicationBuilder AppBuilder = WebApplication.CreateBuilder(Args);
             AppBuilder.Services.AddControllersWithViews();
             WebApplication App = AppBuilder.Build();
+            App.MapControllerRoute("default", "api/{controller}/{action=Index}/{id?}");
+            App.MapFallbackToFile("index.html");
             App.Run();
         }
     }
