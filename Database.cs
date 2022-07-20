@@ -5,7 +5,7 @@ using MySql.Data.MySqlClient;
 
 namespace Battleship
 {
-    class Database
+    static class Database
     {
         private static MySqlConnection Connection;
         private static object MySqlLock = new();
@@ -14,9 +14,16 @@ namespace Battleship
         {
             lock(MySqlLock)
             {
-                string ConnectionString = "Server=" + Host + ";" + "UserId=" + User + ";" + "Password=" + Pass + ";" + "Database=" + Db + ";" + "SslMode=None";
-                Connection = new MySqlConnection(ConnectionString);
-                Connection.Open();
+                try
+                {
+                    string ConnectionString = "Server=" + Host + ";" + "UserId=" + User + ";" + "Password=" + Pass + ";" + "Database=" + Db + ";" + "SslMode=None";
+                    Connection = new MySqlConnection(ConnectionString);
+                    Connection.Open();
+                }
+                catch (Exception Ex)
+                {
+                    Console.Log(Console.LogType.Error, Ex.ToString());
+                }
             }
         }
         
@@ -24,8 +31,15 @@ namespace Battleship
         {
             lock(MySqlLock)
             {
-                Connection.Close();
-                Connection.Dispose();
+                try
+                {
+                    Connection.Close();
+                    Connection.Dispose();
+                }
+                catch (Exception Ex)
+                {
+                    Console.Log(Console.LogType.Error, Ex.ToString());
+                }
             }
         }
         
@@ -41,7 +55,7 @@ namespace Battleship
                 }
                 catch (Exception Ex)
                 {
-                    Console.WriteLine(Ex);
+                    Console.Log(Console.LogType.Error, Ex.ToString());
                 }
             }
         }
@@ -76,7 +90,7 @@ namespace Battleship
                 }
                 catch (Exception Ex)
                 {
-                    Console.WriteLine(Ex);
+                    Console.Log(Console.LogType.Error, Ex.ToString());
                 }
             }
             if (Result.Rows.Count > 0 && Result.Columns.Count > 0)
@@ -88,7 +102,7 @@ namespace Battleship
                     Results[i] = new string[Objects[i].Length];
                     for (int j = 0; j < Objects[i].Length; j++)
                     {
-                        Results[i][j] = Objects[i][j].ToString();
+                        Results[i][j] = Objects[i][j].ToString() ?? " ";
                     }
                 }
                 return Results;
@@ -109,7 +123,7 @@ namespace Battleship
                 }
                 catch (Exception Ex)
                 {
-                     Console.WriteLine(Ex);
+                    Console.Log(Console.LogType.Error, Ex.ToString());
                 }
             }
             return Result;
@@ -128,7 +142,7 @@ namespace Battleship
                 }
                 catch (Exception Ex)
                 {
-                    Console.WriteLine(Ex);
+                    Console.Log(Console.LogType.Error, Ex.ToString());
                 }
             }
             return Result;
@@ -147,7 +161,7 @@ namespace Battleship
                 }
                 catch (Exception Ex)
                 {
-                    Console.WriteLine(Ex);
+                    Console.Log(Console.LogType.Error, Ex.ToString());
                 }
             }
             return Result;
