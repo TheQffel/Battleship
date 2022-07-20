@@ -30,6 +30,8 @@ namespace Battleship
             while(!Shutdown)
             {
                 string[] Command = (System.Console.ReadLine() ?? "exit").Split(' ');
+                System.Console.CursorTop--;
+                Console.Log(Console.LogType.Warning, "User issued server command: " + Command[0]);
                 switch (Command[0].ToLower())
                 {
                     case "exit": case "quit":
@@ -44,7 +46,16 @@ namespace Battleship
                     }
                     case "info":
                     {
-                        Console.Log(Console.LogType.Info, "Battleship v. 1.0");
+                        Console.Log(Console.LogType.Info, "Battleship - Current Games:");
+                        string[][] GamesIds = Database.Get("Battleship_Games", "GameId");
+                        
+                        if(GamesIds[0][0].Length > 0)
+                        {
+                            for (int i = 0; i < GamesIds.Length; i++)
+                            {
+                                Console.Log(Console.LogType.Info, Games.ById(long.Parse(GamesIds[i][0])).ToString().Replace("{ ", "").Replace(" }", "").Replace("\"", ""));
+                            }
+                        }
                         break;
                     }
                 }

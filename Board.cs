@@ -70,26 +70,26 @@ namespace Battleship
             
             for (int i = 0; i < 10; i++)
             {
-                JsonBoard += "\t{ ";
+                JsonBoard += "\t[ ";
                 for (int j = 0; j < 10; j++)
                 {
                     JsonBoard += Get(i, j) + ", ";
                 }
-                JsonBoard += "},\n";
+                JsonBoard += "],\n";
             }
             
-            return "{" + JsonBoard +  "}";
+            return "[" + JsonBoard +  "]";
         }
         
         public void FromString(string JsonData)
         {
-            JsonData = JsonData.Replace("{", "").Replace("}", "");
+            JsonData = JsonData.Replace("[", "").Replace("]", "");
             
             string[] DataSet = JsonData.Split("\t ");
 
-            for (int i = 1; i <= 10; i++)
+            for (int i = 0; i < 10; i++)
             {
-                string[] Data = DataSet[i].Split(", ");
+                string[] Data = DataSet[i+1].Split(", ");
 
                 for (int j = 0; j < 10; j++)
                 {
