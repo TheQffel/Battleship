@@ -7,7 +7,7 @@ namespace Battleship
 {
     static class Database
     {
-        private static MySqlConnection Connection;
+        private static MySqlConnection Connection = new();
         private static object MySqlLock = new();
         
         public static void Connect(string Host, string User, string Pass, string Db)
@@ -17,8 +17,10 @@ namespace Battleship
                 try
                 {
                     string ConnectionString = "Server=" + Host + ";" + "UserId=" + User + ";" + "Password=" + Pass + ";" + "Database=" + Db + ";" + "SslMode=None";
-                    Connection = new MySqlConnection(ConnectionString);
+                    Connection = new(ConnectionString);
                     Connection.Open();
+                    
+                    Console.Log(Console.LogType.Ok, "Successfully connected to database!");
                 }
                 catch (Exception Ex)
                 {
@@ -95,14 +97,14 @@ namespace Battleship
             }
             if (Result.Rows.Count > 0 && Result.Columns.Count > 0)
             {
-                object[][] Objects = Result.AsEnumerable().Select(x => x.ItemArray).ToArray();
+                object?[][] Objects = Result.AsEnumerable().Select(x => x.ItemArray).ToArray();
                 string[][] Results = new string[Objects.Length][];
                 for (int i = 0; i < Objects.Length; i++)
                 {
                     Results[i] = new string[Objects[i].Length];
                     for (int j = 0; j < Objects[i].Length; j++)
                     {
-                        Results[i][j] = Objects[i][j].ToString() ?? " ";
+                        Results[i][j] = Objects[i][j]?.ToString() ?? " ";
                     }
                 }
                 return Results;
