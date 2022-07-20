@@ -11,6 +11,12 @@ namespace Battleship
         
         private Board GameBoard;
         
+        public Game(long GameId)
+        {
+            this.GameId = GameId;
+            Load();
+        }
+        
         public Game(string PlayerA, string PlayerB)
         {
             GameId = new DateTimeOffset(DateTime.UtcNow).ToUnixTimeSeconds();
@@ -24,6 +30,16 @@ namespace Battleship
         public override string ToString()
         {
             return GameId + ": " + PlayerA + " vs " + PlayerB;
+        }
+        
+        private void Load()
+        {
+            
+        }
+        
+        private void Save()
+        {
+            
         }
     }
 }
