@@ -6,6 +6,11 @@ namespace Battleship
 
         public Board()
         {
+            Clear();
+        }
+        
+        public void Clear()
+        {
             for (int i = 0; i < 10; i++)
             {
                 for (int j = 0; j < 10; j++)
@@ -13,6 +18,41 @@ namespace Battleship
                     Set(i, j, 0);
                 }
             }
+        }
+        
+        public bool PlaceShip(int Length, int[] X, int[] Y)
+        {
+            if(Length != Y.Length) { return false; }
+            if(Length != X.Length) { return false; }
+            
+            if(ShipPlacementCorrect(Length, X, Y))
+            {
+                for (int i = 0; i < Length; i++)
+                {
+                    Set(X[i], Y[i], 1);
+                }
+                return true;
+            }
+            return false;
+        }
+        
+        private bool ShipPlacementCorrect(int Length, int[] X, int[] Y)
+        {
+            for (int i = 0; i < Length; i++)
+            {
+                if(Get(X[i], Y[i]) == 1) { return false; }
+                
+                if(X[i] > 0) { if(Get(X[i] - 1, Y[i]) == 1) { return false; } }
+                if(X[i] < 9) { if(Get(X[i] + 1, Y[i]) == 1) { return false; } }
+                if(Y[i] > 0) { if(Get(X[i], Y[i] - 1) == 1) { return false; } }
+                if(Y[i] < 9) { if(Get(X[i], Y[i] + 1) == 1) { return false; } }
+                
+                if(X[i] > 0 && Y[i] > 0) { if(Get(X[i] - 1, Y[i] - 1) == 1) { return false; } }
+                if(X[i] < 9 && Y[i] > 0) { if(Get(X[i] + 1, Y[i] - 1) == 1) { return false; } }
+                if(X[i] > 0 && Y[i] < 9) { if(Get(X[i] - 1, Y[i] + 1) == 1) { return false; } }
+                if(X[i] < 9 && Y[i] < 9) { if(Get(X[i] + 1, Y[i] + 1) == 1) { return false; } }
+            }
+            return true;
         }
         
         public int LetterToInt(string Letter)
@@ -24,32 +64,16 @@ namespace Battleship
         {
             switch (Letter)
             {
-                case 'A': case 'a': return 0;
-                case 'B': case 'b': return 1;
-                case 'C': case 'c': return 2;
-                case 'D': case 'd': return 3;
-                case 'E': case 'e': return 4;
-                case 'F': case 'f': return 5;
-                case 'G': case 'g': return 6;
-                case 'H': case 'h': return 7;
-                case 'I': case 'i': return 8;
-                case 'J': case 'j': return 9;
-                case 'K': case 'k': return 10;
-                case 'L': case 'l': return 11;
-                case 'M': case 'm': return 12;
-                case 'N': case 'n': return 13;
-                case 'O': case 'o': return 14;
-                case 'P': case 'p': return 15;
-                case 'Q': case 'q': return 16;
-                case 'R': case 'r': return 17;
-                case 'S': case 's': return 18;
-                case 'T': case 't': return 19;
-                case 'U': case 'u': return 20;
-                case 'V': case 'v': return 21;
-                case 'W': case 'w': return 22;
-                case 'X': case 'x': return 23;
-                case 'Y': case 'y': return 24;
-                case 'Z': case 'z': return 25;
+                case 'A': case 'a': case '0': return 0;
+                case 'B': case 'b': case '1': return 1;
+                case 'C': case 'c': case '2': return 2;
+                case 'D': case 'd': case '3': return 3;
+                case 'E': case 'e': case '4': return 4;
+                case 'F': case 'f': case '5': return 5;
+                case 'G': case 'g': case '6': return 6;
+                case 'H': case 'h': case '7': return 7;
+                case 'I': case 'i': case '8': return 8;
+                case 'J': case 'j': case '9': return 9;
                 default: return -1;
             }
         }
