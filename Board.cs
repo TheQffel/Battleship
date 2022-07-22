@@ -99,8 +99,10 @@ namespace Battleship
                 {
                     JsonBoard += Get(i, j) + ", ";
                 }
+                JsonBoard = JsonBoard.Remove(JsonBoard.LastIndexOf(',')) + " ";
                 JsonBoard += "],\n";
             }
+            JsonBoard = JsonBoard.Remove(JsonBoard.LastIndexOf(',')) + "\n";
             
             return "[" + JsonBoard +  "]";
         }

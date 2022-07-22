@@ -7,7 +7,7 @@ class MainMenu extends React.Component
     Ready = false;
     UserGames;
     
-    render()
+    componentDidMount()
     {
         fetch('https://' + window.location.host + '/api/user/', {method: 'GET'})
         .then(response => response.json()).then(data =>
@@ -18,7 +18,6 @@ class MainMenu extends React.Component
 
             if(this.LoggedIn)
             {
-
                 fetch('https://' + window.location.host + '/api/games/' + Cookies.get("Username"), {method: 'GET'})
                 .then(response => response.json()).then(data =>
                 {
@@ -27,7 +26,7 @@ class MainMenu extends React.Component
                         var PlayerTurn = false;
                         if(info.Turn && Cookies.get("Username").toLowerCase() === info.PlayerA.toLowerCase()) { PlayerTurn = true; }
                         if(!info.Turn && Cookies.get("Username").toLowerCase() === info.PlayerB.toLowerCase()) { PlayerTurn = true; }
-                        
+
                         return(
                             <tr key={info.GameId}>
                                 <td> <a href={'https://' + window.location.host + '/game?id=' + info.GameId}> {info.GameId} </a> </td>
@@ -43,7 +42,10 @@ class MainMenu extends React.Component
                 });
             }
         });
-        
+    }
+
+    render()
+    {
         if(this.Ready)
         {
             if(this.LoggedIn)
@@ -60,56 +62,77 @@ class MainMenu extends React.Component
     
     panel()
     {
-        return <table className="games">
-            <thead>
-            <tr>
-                <th>Game</th>
-                <th>Player 1</th>
-                <th>Player 2</th>
-                <th>Turn</th>
-            </tr>
-            </thead>
-            <tbody>
-            {this.UserGames}
-            </tbody>
-        </table>
+        return <div>
+            
+            <table className="games">
+                <thead>
+                    <tr>
+                        <th>Game</th>
+                        <th>Player 1</th>
+                        <th>Player 2</th>
+                        <th>Turn</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {this.UserGames}
+                </tbody>
+            </table>
+
+            <p>Logout:</p>
+            <form onSubmit={this.logout}>
+                <div className="logoutbutton">
+                    <input type="submit" />
+                </div>
+            </form>
+
+            <p>New Game:</p>
+            <form onSubmit={this.game}>
+                <div className="forminput">
+                    <label>Opponent's nickname: </label>
+                    <input type="text" name="nickname" required />
+                </div>
+                <div className="gamebutton">
+                    <input type="submit" />
+                </div>
+            </form>
+            
+        </div>
     }
     
     forms()
     {
         return <div>
-            <div className="loginform" >
-                <p>Login:</p>
-                <form onSubmit={this.login}>
-                    <div className="forminput">
-                        <label>Username </label>
-                        <input type="text" name="username" required />
-                    </div>
-                    <div className="forminput">
-                        <label>Password </label>
-                        <input type="password" name="password" required />
-                    </div>
-                    <div className="loginbutton">
-                        <input type="submit" />
-                    </div>
-                </form>
-            </div>
-            <div className="registerform" >
-                <p>Register:</p>
-                <form onSubmit={this.register}>
-                    <div className="forminput">
-                        <label>Username </label>
-                        <input type="text" name="username" required />
-                    </div>
-                    <div className="forminput">
-                        <label>Password </label>
-                        <input type="password" name="password" required />
-                    </div>
-                    <div className="registerbutton">
-                        <input type="submit" />
-                    </div>
-                </form>
-            </div>
+            
+            <p>Login:</p>
+            <form onSubmit={this.login}>
+                <div className="forminput">
+                    <label>Username </label>
+                    <input type="text" name="username" required />
+                </div>
+                <div className="forminput">
+                    <label>Password </label>
+                    <input type="password" name="password" required />
+                </div>
+                <div className="loginbutton">
+                    <input type="submit" />
+                </div>
+            </form>
+        
+            <p>Register:</p>
+            <form onSubmit={this.register}>
+                <div className="forminput">
+                    <label>Username </label>
+                    <input type="text" name="username" required />
+                </div>
+                <div className="forminput">
+                    <label>Password </label>
+                    <input type="password" name="password" required />
+                </div>
+                <div className="registerbutton">
+                    <input type="submit" />
+                </div>
+            </form>
+            
         </div>
     }
     
@@ -157,6 +180,28 @@ class MainMenu extends React.Component
             {
                 console.log("User already exists, or nickname / password doesn't meet requirements!");
             }
+        });
+    }
+
+    logout = (event) =>
+    {
+        event.preventDefault();
+
+        fetch('https://' + window.location.host + '/api/user/logout', {method: 'GET'})
+        .then(response => response.json()).then(data =>
+        {
+            window.open('https://' + window.location.host, "_self");
+        });
+    }
+
+    game = (event) =>
+    {
+        event.preventDefault();
+
+        fetch('https://' + window.location.host + '/api/games/' + Cookies.get("Username") + '/' + event.target[0].value, {method: 'GET'})
+        .then(response => response.json()).then(data =>
+        {
+            window.open('https://' + window.location.host + '/game?id=' + data.GameId, "_self");
         });
     }
 }
