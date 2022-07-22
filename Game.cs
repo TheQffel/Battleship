@@ -164,7 +164,7 @@ namespace Battleship
         
         public override string ToString()
         {
-            return "{" + $" \"GameId\": {GameId}, \"PlayerA\": \"{PlayerA}\", \"PlayerB\": \"{PlayerB}\", \"Turn\": {Turn} " + "}";
+            return "{" + $" \"GameId\": {GameId}, \"PlayerA\": \"{PlayerA}\", \"PlayerB\": \"{PlayerB}\", \"Turn\": {Turn.ToString().ToLower()} " + "}";
         }
         
         private void Load()

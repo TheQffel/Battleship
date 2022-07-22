@@ -29,9 +29,10 @@ namespace Battleship
             bool Shutdown = false;
             while(!Shutdown)
             {
-                string[] Command = (System.Console.ReadLine() ?? "exit").Split(' ');
+                string UserCommand = System.Console.ReadLine() ?? "exit";
+                string[] Command = UserCommand.Split(' ');
                 System.Console.CursorTop--;
-                Console.Log(Console.LogType.Warning, "User issued server command: " + Command[0]);
+                Console.Log(Console.LogType.Warning, "User issued server command: " + UserCommand);
                 switch (Command[0].ToLower())
                 {
                     case "exit": case "quit":
@@ -39,23 +40,62 @@ namespace Battleship
                         Shutdown = true;
                         break;
                     }
-                    case "help":
+                    case "help": case "cmd":
                     {
-                        Console.Log(Console.LogType.Info, "Available commands: exit help info quit");
+                        Console.Log(Console.LogType.Info, "Available commands: cmd exit help info quit");
                         break;
                     }
                     case "info":
                     {
-                        Console.Log(Console.LogType.Info, "Battleship - Current Games:");
-                        string[][] GamesIds = Database.Get("Battleship_Games", "GameId");
+                        if(Command.Length < 2) { Command = new[] { Command[0], " " }; }
                         
-                        if(GamesIds[0][0].Length > 0)
+                        switch(Command[1].ToLower())
                         {
-                            for (int i = 0; i < GamesIds.Length; i++)
+                            case "users":
                             {
-                                Console.Log(Console.LogType.Info, Games.ById(long.Parse(GamesIds[i][0])).ToString().Replace("{ ", "").Replace(" }", "").Replace("\"", ""));
+                                Console.Log(Console.LogType.Info, "Battleship - Registered Users:");
+                                string[][] UsersNames = Database.Get("Battleship_Users", "Username");
+                                
+                                string AllUsers = "";
+                                for (int i = 0; i < UsersNames.Length; i++)
+                                {
+                                    if(AllUsers.Length > 50)
+                                    {
+                                        Console.Log(Console.LogType.Info, AllUsers);
+                                        AllUsers = "";
+                                    }
+                                    AllUsers += UsersNames[i][0] + " ";
+                                }
+                                Console.Log(Console.LogType.Info, AllUsers);
+                                break;
+                            }
+                            case "games":
+                            {
+                                Console.Log(Console.LogType.Info, "Battleship - Current Games:");
+                                string[][] GamesIds = Database.Get("Battleship_Games", "GameId");
+                        
+                                if(GamesIds[0][0].Length > 0)
+                                {
+                                    for (int i = 0; i < GamesIds.Length; i++)
+                                    {
+                                        Console.Log(Console.LogType.Info, Games.ById(long.Parse(GamesIds[i][0])).ToString().Replace("{ ", "").Replace(" }", "").Replace("\"", ""));
+                                    }
+                                }
+                                break;
+                            }
+                            default:
+                            {
+                                Console.Log(Console.LogType.Error, "Incomplete command! Usage: info [page]");
+                                Console.Log(Console.LogType.Warning, "  info users  -  display all users");
+                                Console.Log(Console.LogType.Warning, "  info games  -  display all games");
+                                break;
                             }
                         }
+                        break;
+                    }
+                    default:
+                    {
+                        Console.Log(Console.LogType.Error, "Unknown command! Use 'help' for help.");
                         break;
                     }
                 }

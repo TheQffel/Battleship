@@ -2,9 +2,13 @@ import React from "react";
 
 class Game extends React.Component
 {
+    GameId;
+    
     render()
     {
-        return <h1>Hello, game</h1>;
+        this.GameId = new URL(window.location).searchParams.get('id')
+        
+        return <h1>Game: {this.GameId}</h1>
     }
 }
 
