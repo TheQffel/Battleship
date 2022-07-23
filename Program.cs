@@ -35,14 +35,15 @@ namespace Battleship
                 Console.Log(Console.LogType.Warning, "User issued server command: " + UserCommand);
                 switch (Command[0].ToLower())
                 {
-                    case "exit": case "quit":
+                    case "exit": case "quit": case "stop":
                     {
+                        Games.SyncAll();
                         Shutdown = true;
                         break;
                     }
                     case "help": case "cmd":
                     {
-                        Console.Log(Console.LogType.Info, "Available commands: cmd exit help info quit");
+                        Console.Log(Console.LogType.Info, "Available commands: cmd exit help info quit stop");
                         break;
                     }
                     case "info":

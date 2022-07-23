@@ -22,5 +22,13 @@ namespace Battleship
             AllGames[NewGame.Id()] = NewGame;
             return AllGames[NewGame.Id()];
         }
+        
+        public static void SyncAll()
+        {
+            foreach (KeyValuePair<long, Game> Game in AllGames)
+            {
+                Game.Value.SyncWithDb();
+            }
+        }
     }
 }

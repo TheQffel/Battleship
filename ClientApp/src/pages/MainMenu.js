@@ -9,7 +9,7 @@ class MainMenu extends React.Component
     
     componentDidMount()
     {
-        fetch('https://' + window.location.host + '/api/user/', {method: 'GET'})
+        fetch('http://' + window.location.host + '/api/user/', {method: 'GET'})
         .then(response => response.json()).then(data =>
         {
             this.Ready = true;
@@ -18,7 +18,7 @@ class MainMenu extends React.Component
 
             if(this.LoggedIn)
             {
-                fetch('https://' + window.location.host + '/api/games/' + Cookies.get("Username"), {method: 'GET'})
+                fetch('http://' + window.location.host + '/api/games/' + Cookies.get("Username"), {method: 'GET'})
                 .then(response => response.json()).then(data =>
                 {
                     this.UserGames=data.map((info)=>
@@ -28,11 +28,11 @@ class MainMenu extends React.Component
                         if(!info.Turn && Cookies.get("Username").toLowerCase() === info.PlayerB.toLowerCase()) { PlayerTurn = true; }
 
                         return(
-                            <tr key={info.GameId}>
-                                <td> <a href={'https://' + window.location.host + '/game?id=' + info.GameId}> {info.GameId} </a> </td>
-                                <td> <a href={'https://' + window.location.host + '/game?id=' + info.GameId}> {info.PlayerA} </a> </td>
-                                <td> <a href={'https://' + window.location.host + '/game?id=' + info.GameId}> {info.PlayerB} </a> </td>
-                                <td> <a href={'https://' + window.location.host + '/game?id=' + info.GameId}> {PlayerTurn ? "Your turn!" : "Opponent's turn!"} </a> </td>
+                            <tr key={info.GameId} style={{border: "2px solid black"}}>
+                                <td> <a href={'http://' + window.location.host + '/game?id=' + info.GameId}> {info.GameId} </a> </td>
+                                <td> <a href={'http://' + window.location.host + '/game?id=' + info.GameId}> {info.PlayerA} </a> </td>
+                                <td> <a href={'http://' + window.location.host + '/game?id=' + info.GameId}> {info.PlayerB} </a> </td>
+                                <td> <a href={'http://' + window.location.host + '/game?id=' + info.GameId}> {PlayerTurn ? "Your's\xa0turn!" : "Opponent's\xa0turn!"} </a> </td>
                             </tr>
                         )
                     });
@@ -64,12 +64,13 @@ class MainMenu extends React.Component
     {
         return <div>
             
+            <p> &nbsp; &nbsp; Current Games: </p>
             <table className="games">
                 <thead>
                     <tr>
                         <th>Game</th>
-                        <th>Player 1</th>
-                        <th>Player 2</th>
+                        <th>Player&nbsp;A</th>
+                        <th>Player&nbsp;B</th>
                         <th>Turn</th>
                     </tr>
                 </thead>
@@ -77,22 +78,25 @@ class MainMenu extends React.Component
                     {this.UserGames}
                 </tbody>
             </table>
+            
+            <div style={{clear: "both"}}/><br/>
 
-            <p>Logout:</p>
-            <form onSubmit={this.logout}>
-                <div className="logoutbutton">
-                    <input type="submit" />
+            <p> &nbsp; &nbsp; New Game: </p>
+            <form onSubmit={this.game}>
+                <div className="gamebutton">
+                    <label style={{float: "left"}}> &nbsp; Opponent's nickname: </label><br/><br/>
+                    <input style={{float: "left"}} type="text" name="nickname" required />
+                    <input style={{float: "left", marginLeft: "10px"}} type="submit" value="Start Game!"/>
                 </div>
             </form>
 
-            <p>New Game:</p>
-            <form onSubmit={this.game}>
-                <div className="forminput">
-                    <label>Opponent's nickname: </label>
-                    <input type="text" name="nickname" required />
-                </div>
-                <div className="gamebutton">
-                    <input type="submit" />
+            <br/> <br/>
+            
+            <p> &nbsp; &nbsp; You are logged as: </p>
+            <form onSubmit={this.logout}>
+                <div className="logoutbutton">
+                    <input style={{float: "left"}} value={Cookies.get("Username")} disabled/>
+                    <input style={{float: "left", marginLeft: "10px"}} type="submit" value="Log Out!"/>
                 </div>
             </form>
             
@@ -102,34 +106,28 @@ class MainMenu extends React.Component
     forms()
     {
         return <div>
-            
-            <p>Login:</p>
-            <form onSubmit={this.login}>
-                <div className="forminput">
-                    <label>Username </label>
-                    <input type="text" name="username" required />
-                </div>
-                <div className="forminput">
-                    <label>Password </label>
-                    <input type="password" name="password" required />
-                </div>
-                <div className="loginbutton">
-                    <input type="submit" />
+
+            <form onSubmit={this.register} style={{float: "left"}}>
+                <p>Register:</p>
+                <div className="registerbutton">
+                    <label> Username: </label> <br/>
+                    <input type="text" name="username" required /> <br/>
+                    <label> Password: </label> <br/>
+                    <input type="password" name="password" required /> <br/>
+                    <br/> <input type="submit" value="Register!"/>
                 </div>
             </form>
-        
-            <p>Register:</p>
-            <form onSubmit={this.register}>
-                <div className="forminput">
-                    <label>Username </label>
-                    <input type="text" name="username" required />
-                </div>
-                <div className="forminput">
-                    <label>Password </label>
-                    <input type="password" name="password" required />
-                </div>
-                <div className="registerbutton">
-                    <input type="submit" />
+            
+            <div style={{minWidth: "150px", float: "left"}}>&nbsp;</div>
+            
+            <form onSubmit={this.login} style={{float: "left"}}>
+                <p>Login:</p>
+                <div className="loginbutton">
+                    <label> Username: </label> <br/>
+                    <input type="text" name="username" required /> <br/>
+                    <label> Password: </label> <br/>
+                    <input type="password" name="password" required /> <br/>
+                    <br/> <input type="submit" value="Log In!"/>
                 </div>
             </form>
             
@@ -144,7 +142,7 @@ class MainMenu extends React.Component
         data.append('Username', event.target[0].value);
         data.append('Password', event.target[1].value);
         
-        fetch('https://' + window.location.host + '/api/user/login', { method: 'POST', body: data })
+        fetch('http://' + window.location.host + '/api/user/login', { method: 'POST', body: data })
         .then(response => response.json()).then(data =>
         {
             if(data.Status)
@@ -168,7 +166,7 @@ class MainMenu extends React.Component
         data.append('Username', event.target[0].value);
         data.append('Password', event.target[1].value);
 
-        fetch('https://' + window.location.host + '/api/user/register', { method: 'POST', body: data })
+        fetch('http://' + window.location.host + '/api/user/register', { method: 'POST', body: data })
         .then(response => response.json()).then(data =>
         {
             if(data.Status)
@@ -187,10 +185,10 @@ class MainMenu extends React.Component
     {
         event.preventDefault();
 
-        fetch('https://' + window.location.host + '/api/user/logout', {method: 'GET'})
+        fetch('http://' + window.location.host + '/api/user/logout', {method: 'GET'})
         .then(response => response.json()).then(data =>
         {
-            window.open('https://' + window.location.host, "_self");
+            window.open('http://' + window.location.host, "_self");
         });
     }
 
@@ -198,10 +196,10 @@ class MainMenu extends React.Component
     {
         event.preventDefault();
 
-        fetch('https://' + window.location.host + '/api/games/' + Cookies.get("Username") + '/' + event.target[0].value, {method: 'GET'})
+        fetch('http://' + window.location.host + '/api/games/' + Cookies.get("Username") + '/' + event.target[0].value, {method: 'GET'})
         .then(response => response.json()).then(data =>
         {
-            window.open('https://' + window.location.host + '/game?id=' + data.GameId, "_self");
+            window.open('http://' + window.location.host + '/game?id=' + data.GameId, "_self");
         });
     }
 }

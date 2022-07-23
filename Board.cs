@@ -1,3 +1,6 @@
+using System;
+using System.Linq;
+
 namespace Battleship
 {
     public class Board
@@ -38,6 +41,12 @@ namespace Battleship
         
         private bool ShipPlacementCorrect(int Length, int[] X, int[] Y)
         {
+            int LengthX = X.Max() - X.Min();
+            int LengthY = Y.Max() - Y.Min();
+            if(LengthX >= Length) { return false; }
+            if(LengthY >= Length) { return false; }
+            if(LengthX > 0 && LengthY > 0) { return false; }
+            
             for (int i = 0; i < Length; i++)
             {
                 if(Get(X[i], Y[i]) == 1) { return false; }
@@ -119,7 +128,7 @@ namespace Battleship
 
                 for (int j = 0; j < 10; j++)
                 {
-                    Set(i, j, int.Parse(Data[j]));
+                    Set(i, j, int.Parse(Data[j][0].ToString()));
                 }
             }
         }

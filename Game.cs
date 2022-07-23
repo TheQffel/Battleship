@@ -36,6 +36,8 @@ namespace Battleship
         ~Game() { Save(); }
         
         public long Id() { return GameId; }
+        
+        public void SyncWithDb() { Save(); }
 
         public Board PlayerBoard(string Player)
         {
@@ -135,36 +137,79 @@ namespace Battleship
             
             Error = null;
             
-            if(IsPLayerMove(Player))
+            if(Winner() == null)
             {
-                if(AreShipsPlaced(PlayerA) && AreShipsPlaced(PlayerB))
+                if(IsPLayerMove(Player))
                 {
-                    if(Board.Get(X, Y) <= 1)
+                    if(AreShipsPlaced(PlayerA) && AreShipsPlaced(PlayerB))
                     {
-                        if(Board.Get(X, Y) == 0)
+                        if(Board.Get(X, Y) <= 1)
                         {
-                            Board.Set(X, Y, 2);
-                            Turn = !Turn;
+                            if(Board.Get(X, Y) == 0)
+                            {
+                                Board.Set(X, Y, 2);
+                                Turn = !Turn;
+                            }
+                            else
+                            {
+                                Board.Set(X, Y, 3);
+                                if(Winner() != null)
+                                {
+                                    Turn = !Turn;
+                                }
+                            }
+                            return true;
                         }
-                        else
-                        {
-                            Board.Set(X, Y, 3);
-                        }
-                        return true;
+                        Error = "Already shot!";
+                        return false;
                     }
-                    Error = "Already shot!";
+                    Error = "Ships not placed!";
                     return false;
                 }
-                Error = "Ships not placed!";
+                Error = "Not your move!";
                 return false;
             }
-            Error = "Not your move!";
+            Error = "Game is finished!";
             return false;
+        }
+        
+        private string? Winner()
+        {
+            string? Winner = null;
+            bool PlacedShipsA = false;
+            bool PlacedShipsB = false;
+            bool NoShipsLeftA = true;
+            bool NoShipsLeftB = true;
+
+            for (int i = 0; i < 10; i++)
+            {
+                for (int j = 0; j < 10; j++)
+                {
+                    if(BoardA.Get(i, j) != 0) { PlacedShipsA = true; }
+                    if(BoardB.Get(i, j) != 0) { PlacedShipsB = true; }
+                    if(BoardA.Get(i, j) == 1) { NoShipsLeftA = false; }
+                    if(BoardB.Get(i, j) == 1) { NoShipsLeftB = false; }
+                }
+            }
+            
+            if(PlacedShipsA && PlacedShipsB)
+            {
+                if(NoShipsLeftA != NoShipsLeftB)
+                {
+                    if(NoShipsLeftA) { Winner = PlayerB; }
+                    if(NoShipsLeftB) { Winner = PlayerA; }
+                }
+            }
+            
+            return Winner;
         }
         
         public override string ToString()
         {
-            return "{" + $" \"GameId\": {GameId}, \"PlayerA\": \"{PlayerA}\", \"PlayerB\": \"{PlayerB}\", \"Turn\": {Turn.ToString().ToLower()} " + "}";
+            string WinnerName = Winner() ?? "";
+            if(WinnerName.Length > 0)
+            {WinnerName = $", \"Winner\": \"{WinnerName}\""; }
+            return "{" + $" \"GameId\": {GameId}, \"PlayerA\": \"{PlayerA}\", \"PlayerB\": \"{PlayerB}\", \"Turn\": {Turn.ToString().ToLower()}" + WinnerName + " }";
         }
         
         private void Load()
@@ -189,7 +234,7 @@ namespace Battleship
         
         private void Save()
         {
-            Database.Set("Battleship_Games", $"PlayerA = '{PlayerA}', PlayerB = '{PlayerB}', Turn = '{Turn}', BoardA = '{BoardA}', BoardB = '{BoardB}'", $"GameId = '{GameId}'");
+            Database.Set("Battleship_Games", $"PlayerA = '{PlayerA}', PlayerB = '{PlayerB}', Turn = '{(Turn ? 1 : 0)}', BoardA = '{BoardA}', BoardB = '{BoardB}'", $"GameId = '{GameId}'");
         }
     }
 }
