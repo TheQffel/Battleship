@@ -11,10 +11,15 @@ class Game extends React.Component
     CurrentTurn;
     LastTurnState;
     LoopLaunched;
+    ButtonShips;
+    ButtonMove;
 
     componentDidMount()
     {
         this.GameId = new URL(window.location).searchParams.get('id');
+
+        this.ButtonShips = <button id="shipbutton" disabled> Place Ships Randomly! </button>;
+        this.ButtonMove = <button id="movebutton" disabled> Shoot Random Cell! </button>;
 
         fetch('http://' + window.location.host + '/api/game/' + this.GameId, {method: 'GET'})
         .then(response => response.json()).then(data =>
@@ -90,6 +95,15 @@ class Game extends React.Component
                     setInterval(() => { this.updatedata(); }, 1000);
                 }
 
+                if(this.CurrentTurn === Cookies.get("Username"))
+                {
+                    this.ButtonMove = <button id="shipbutton" onClick={() => this.randommove()}> Shoot Random Cell! </button>
+                }
+                if(!this.AlreadyPlaced)
+                {
+                    this.ButtonShips = <button id="movebutton" onClick={() => this.randomships()}> Place Ships Randomly! </button>
+                }
+
                 this.setState(data);
             });
         });
@@ -128,10 +142,11 @@ class Game extends React.Component
                 </thead>
                 {this.OpponentBoard}
             </table>
-            <div style={{clear: "both"}}>&nbsp;</div>
-            <p> &nbsp; &nbsp; Current Turn: <i>{this.CurrentTurn}</i> </p>
-            &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
-            <a style={{textDecoration: "underline", fontWeight: "bolder", fontSize: "150%"}} href={"http://" + window.location.host}> Back To Main Menu! </a>
+            <div style={{clear: "both"}}>&nbsp;</div> <br/>
+            &nbsp; &nbsp; {this.ButtonShips} &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; {this.ButtonMove} <br/> <br/>
+            <p> &nbsp; &nbsp; &nbsp; &nbsp; Current Turn: <i>{this.CurrentTurn}</i> </p>
+            &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+            <a style={{textDecoration: "underline", fontWeight: "bolder", fontSize: "150%"}} href={"http://" + window.location.host}> Back To Main Menu </a>
         </div>
     }
 
@@ -213,26 +228,109 @@ class Game extends React.Component
 
     opponentboardclicked = (event) =>
     {
-        var cell = event.target.closest('td');
-        if(cell == null) { return; }
-        var row = cell.parentElement;
-        var move = row.rowIndex-1 + '' + cell.cellIndex;
+        if(this.CurrentTurn === Cookies.get("Username"))
+        {
+            var cell = event.target.closest('td');
+            if(cell == null) { return; }
+            var row = cell.parentElement;
+            var move = row.rowIndex-1 + '' + cell.cellIndex;
+            
+            fetch('http://' + window.location.host + '/api/game/' + this.GameId + '/' + Cookies.get("Username") + '/?action=' + move, {method: 'GET'})
+            .then(response => response.json()).then(data =>
+            {
+                if(data.Error == null)
+                {
+                    console.log("Move: " + data.Status);
+                    this.componentDidMount();
+                }
+                else
+                {
+                    console.log("Move: " + data.Error);
+                    alert("Error: " + data.Error);
+                }
+            });
+        }
+        else
+        {
+            console.log("Error: It's not your turn!");
+            alert("Error: It's not your turn!");
+        }
+    }
+
+    randomships()
+    {
+        this.ButtonShips = <button id="shipbutton" disabled> Please wait, this may take a while... </button>;
+        this.setState({});
         
-        fetch('http://' + window.location.host + '/api/game/' + this.GameId + '/' + Cookies.get("Username") + '/?action=' + move, {method: 'GET'})
+        function generateship(length)
+        {
+            var Ship = "";
+            var Nr = 11 - length;
+    
+            if(Math.random() < 0.5)
+            {
+                var Xi = Math.floor(Math.random() * Nr);
+                var Yi = Math.floor(Math.random() * 10);
+    
+                for(var i = 0; i < length; i++)
+                {
+                    Ship += (Xi+i) + "" + Yi;
+                }
+            }
+            else
+            {
+                var Xj = Math.floor(Math.random() * 10);
+                var Yj = Math.floor(Math.random() * Nr);
+    
+                for(var i = 0; i < length; i++)
+                {
+                    Ship += Xj + "" + (Yj+i);
+                }
+            }
+            
+            return Ship;
+        }
+        
+        this.ShipsPositions = generateship(6) + '-' + generateship(5) + '-' + generateship(4) + '-' + generateship(3)+ '-' + generateship(2);
+        
+        fetch('http://' + window.location.host + '/api/game/' + this.GameId + '/' + Cookies.get("Username") + '/?action=' + this.ShipsPositions, {method: 'GET'})
         .then(response => response.json()).then(data =>
         {
             if(data.Error == null)
             {
-                this.componentDidMount();
                 console.log("Move: " + data.Status);
+                alert("Ships placed!");
+                window.location.reload();
             }
             else
             {
                 console.log("Move: " + data.Error);
-                alert("Error: " + data.Error);
+                console.log("Random ship place failed, trying again...");
+                this.randomships();
             }
         });
-        this.updatestyles();
+    }
+    
+    randommove()
+    {
+        this.ButtonMove = <button id="movebutton" disabled> Please wait... </button>;
+        this.setState({});
+
+        fetch('http://' + window.location.host + '/api/game/' + this.GameId + '/' + Cookies.get("Username") + '/?action=' + Math.floor(Math.random() * 10) + '' + Math.floor(Math.random() * 10), {method: 'GET'})
+        .then(response => response.json()).then(data =>
+        {
+            if(data.Error == null)
+            {
+                console.log("Move: " + data.Status);
+                this.componentDidMount();
+            }
+            else
+            {
+                console.log("Move: " + data.Error);
+                console.log("Random move failed, trying again...");
+                this.randommove();
+            }
+        });
     }
 }
 
